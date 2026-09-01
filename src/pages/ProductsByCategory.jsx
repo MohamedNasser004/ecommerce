@@ -5,130 +5,290 @@ import { Link } from "react-router-dom";
 
 import "swiper/css";
 import "swiper/css/navigation";
+
 const ProductsByCategory = () => {
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
 
-    // Get Categories
-    useEffect(() => {
-        fetch("https://dummyjson.com/products/categories")
-            .then((res) => res.json())
-            .then((data) => {
-                setCategories(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching categories:", error);
-            });
-    }, []);
+  // =========================
+  // Get Categories
+  // =========================
+  useEffect(() => {
+    fetch("http://localhost:7000/api/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data.data || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      });
+  }, []);
 
-    // Get Products for every Category
-    useEffect(() => {
-        if (categories.length === 0) return;
+  // =========================
+  // Get Products For Categories
+  // =========================
+  useEffect(() => {
+    if (categories.length === 0) return;
 
-        const requests = categories.map((category) => {
-            return fetch(
-                `https://dummyjson.com/products/category/${category.slug}`
-            ).then((res) => res.json());
-        });
+    const requests = categories.map((category) =>
+      fetch(
+        `http://localhost:7000/api/products/category/${category.id}`
+      ).then((res) => {
+        if (!res.ok) {
+          return { products: [] };
+        }
 
-        Promise.all(requests)
-            .then((data) => {
-                setProducts(data);
+        return res.json();
+      })
+    );
 
-                console.log("All products:", data);
-            })
-            .catch((error) => {
-                console.error("Error fetching products:", error);
-            });
-    }, [categories]);
+    Promise.all(requests)
+      .then((data) => {
+        setProducts(data);
+        console.log("All products:", data);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }, [categories]);
 
-    return (
-        <div className="w-full px-6 py-12 md:px-10 lg:px-16">
-            {categories.map((category, index) => (
-                <div key={category.slug || index}>
-                    <h2 className="text-2xl font-600 text-gray-600 p-2">{category.name}</h2>
-                    <p className="text-gray-500 p-2">
-                        {category.description}
-                    </p>
+  return (
+    <section className="w-full bg-white px-4 py-12 sm:px-6 md:px-10 lg:px-16">
 
-                    <div>
-                        <Swiper
-                            slidesPerView={4}
-                            spaceBetween={20}
-                            navigation={true}
-                            modules={[Navigation]}
-                            className="w-full"
-                            breakpoints={{
-                                0: {
-                                    slidesPerView: 1,
-                                },
-                                640: {
-                                    slidesPerView: 2,
-                                },
-                                768: {
-                                    slidesPerView: 3,
-                                },
-                                1024: {
-                                    slidesPerView: 4,
-                                },
-                            }}
-                        >
-                            {products[index]?.products?.map((product) => (
-                                <SwiperSlide key={product.id}>
+      {categories.map((category, index) => {
 
-                                    {/* Product Card */}
-                                    <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+        const categoryProducts =
+          products[index]?.products || [];
 
-                                        {/* Image */}
-                                        <Link to={`/product/${product.id}`}>
-                                            <div className="flex h-60 items-center justify-center overflow-hidden bg-gray-50 p-5">
-                                                <img
-                                                    src={product.thumbnail}
-                                                    alt={product.title}
-                                                    className="h-full w-full object-contain transition duration-500 group-hover:scale-110"
-                                                />
-                                            </div>
-                                        </Link>
+        // لو التصنيف مفيهوش منتجات متظهرهوش
+        if (categoryProducts.length === 0) {
+          return null;
+        }
 
-                                        {/* Product Info */}
-                                        <div className="p-5">
+        return (
+          <div
+            key={category.id || index}
+            className="mb-16 last:mb-0"
+          >
 
-                                            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                                {product.category}
-                                            </span>
+            {/* =========================
+                Category Header
+            ========================= */}
+            <div className="mb-7">
 
-                                            <h3 className="mt-2 truncate text-lg font-semibold text-gray-900">
-                                                {product.title}
-                                            </h3>
+              <div className="flex items-center gap-4">
 
-                                            <p className="mt-2 line-clamp-2 h-10 text-sm leading-5 text-gray-500">
-                                                {product.description}
-                                            </p>
+                {/* Line */}
+                <div className="hidden h-px flex-1 bg-gray-200 sm:block" />
 
-                                            <div className="mt-5 flex items-center justify-between">
-                                                <span className="text-xl font-bold text-gray-900">
-                                                    ${product.price}
-                                                </span>
+                {/* Title */}
+                <div className="text-right">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                    Collection
+                  </span>
 
-                                                <Link
-                                                    to={`/product/${product.id}`}
-                                                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                                                >
-                                                    View Details
-                                                </Link>
-                                            </div>
+                  <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">
+                    {category.category_name}
+                  </h2>
+                </div>
 
-                                        </div>
+              </div>
+
+              {category.description && (
+                <p className="mt-2 max-w-2xl ml-auto text-right text-sm leading-6 text-gray-500">
+                  {category.description}
+                </p>
+              )}
+
+            </div>
+
+            {/* =========================
+                Products Slider
+            ========================= */}
+            <div className="relative">
+
+              <Swiper
+                slidesPerView={1}
+                spaceBetween={16}
+                navigation={true}
+                modules={[Navigation]}
+                className="products-swiper !pb-2 !px-1"
+                breakpoints={{
+                  480: {
+                    slidesPerView: 1.2,
+                    spaceBetween: 16,
+                  },
+
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 18,
+                  },
+
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                  },
+
+                  1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 22,
+                  },
+
+                  1280: {
+                    slidesPerView: 4,
+                    spaceBetween: 24,
+                  },
+                }}
+              >
+
+                {categoryProducts.map((product) => (
+
+                  <SwiperSlide
+                    key={product.id}
+                    className="!h-auto"
+                  >
+
+                    {/* =========================
+                        Product Card
+                    ========================= */}
+                    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.12)]">
+
+                      {/* =========================
+                          Image
+                      ========================= */}
+                      <Link
+                        to={`/product/${product.id}`}
+                        className="block"
+                      >
+                        <div className="relative flex h-64 items-center justify-center overflow-hidden bg-gray-50 p-6 md:h-72">
+
+                          {/* Background decoration */}
+                          <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-blue-50 transition-transform duration-500 group-hover:scale-150" />
+
+                          <img
+                            src={`http://localhost:7000/uploads/products/${product.image}`}
+                            alt={product.title}
+                            loading="lazy"
+                            className="relative z-10 h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-110"
+                          />
+
+                        </div>
+                      </Link>
+
+                      {/* =========================
+                          Product Info
+                      ========================= */}
+                      <div className="flex flex-1 flex-col p-5">
+
+                        {/* Category */}
+                        <span className="mb-2 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          {product.category_name}
+                        </span>
+
+                        {/* Title */}
+                        <h3 className="min-h-[28px] truncate text-center text-lg font-bold text-gray-900">
+                          {product.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="mt-2 line-clamp-2 min-h-[40px] text-center text-sm leading-5 text-gray-500">
+                          {product.description}
+                        </p>
+
+                        {/* =========================
+                            Sizes & Prices
+                        ========================= */}
+                        <div className="mt-5">
+
+                          {product.sizes &&
+                          product.sizes.length > 0 ? (
+
+                            product.sizes.length === 1 ? (
+
+                              /* Single Size */
+                              <div className="rounded-xl border border-blue-100 bg-blue-50/40 px-4 py-3 text-center">
+
+                                <div className="mb-1 text-xs text-gray-500">
+                                  {product.sizes[0].size}
+                                </div>
+
+                                <div className="text-xl font-extrabold text-[#25147C]">
+                                  {product.sizes[0].price}
+                                </div>
+
+                              </div>
+
+                            ) : (
+
+                              /* Multiple Sizes */
+                              <div className="grid grid-cols-2 gap-2">
+
+                                {product.sizes.map(
+                                  (size) => (
+
+                                    <div
+                                      key={size.id}
+                                      className="flex min-h-[65px] flex-col items-center justify-center rounded-xl border border-gray-100 bg-gray-50 px-2 py-2 transition hover:border-blue-200 hover:bg-blue-50/40"
+                                    >
+
+                                      <span className="mb-1 truncate text-xs font-medium text-gray-500">
+                                        {size.size}
+                                      </span>
+
+                                      <span className="text-sm font-bold text-[#25147C]">
+                                        {size.price}
+                                      </span>
+
                                     </div>
 
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
+                                  )
+                                )}
+
+                              </div>
+
+                            )
+
+                          ) : (
+
+                            <div className="rounded-xl border border-gray-100 bg-gray-50 py-3 text-center text-sm text-gray-400">
+                              السعر غير متوفر
+                            </div>
+
+                          )}
+
+                        </div>
+
+                        {/* =========================
+                            Button
+                        ========================= */}
+                        <Link
+                          to={`/product/${product.id}`}
+                          className="mt-5 flex items-center justify-center rounded-xl bg-[#25147C] px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#1c0e63] hover:shadow-lg"
+                        >
+                          View Details
+                          <span className="mr-2 transition-transform duration-300 group-hover:-translate-x-1">
+                            →
+                          </span>
+                        </Link>
+
+                      </div>
+
                     </div>
-                </div>
-            ))}
-        </div>
-    );
+
+                  </SwiperSlide>
+
+                ))}
+
+              </Swiper>
+
+            </div>
+
+          </div>
+        );
+      })}
+
+    </section>
+  );
 };
 
 export default ProductsByCategory;

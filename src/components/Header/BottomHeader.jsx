@@ -4,51 +4,47 @@ import { MdOutlineArrowDropDown } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 const BottomHeader = () => {
-    const [categories, setCategories] = useState([]);
-    const [showCategories, setShowCategories] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [showCategories, setShowCategories] = useState(false);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch(
-                    "https://dummyjson.com/products/categories"
-                );
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:7000/api/categories",{
+              headers : {
+                "x-api-key":"AmKalbazSecretKeyAmKalbaz2025AmKalbaz"
+              }
+          }
+        );
 
-                if (!response.ok) {
-                    throw new Error("Failed to fetch categories");
-                }
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
 
-                const data = await response.json();
+        const data = await response.json();
 
-                setCategories(data);
-            } catch (error) {
-                console.error(
-                    "Error fetching categories:",
-                    error
-                );
-            }
-        };
+        setCategories(data.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
 
-        fetchCategories();
-    }, []);
+    fetchCategories();
+  }, []);
 
-    return (
-        <nav className="bg-gray-900 text-white shadow-md">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-                <div className="min-h-14 flex items-center justify-center gap-8">
-
-                    {/* =========================
+  return (
+    <nav className="bg-gray-900 text-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-14 flex items-center justify-center gap-8">
+          {/* =========================
                         Categories
                     ========================= */}
-                    <div className="relative">
-
-                        <button
-                            type="button"
-                            onClick={() =>
-                                setShowCategories((prev) => !prev)
-                            }
-                            className="
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowCategories((prev) => !prev)}
+              className="
                                 flex
                                 items-center
                                 gap-1
@@ -59,33 +55,27 @@ const BottomHeader = () => {
                                 hover:text-gray-300
                                 transition-colors
                             "
-                        >
-                            <IoMdMenu className="text-2xl" />
+            >
+              <IoMdMenu className="text-2xl" />
 
-                            <span>
-                                All Categories
-                            </span>
+              <span>All Categories</span>
 
-                            <MdOutlineArrowDropDown
-                                className={`
+              <MdOutlineArrowDropDown
+                className={`
                                     text-xl
                                     transition-transform
                                     duration-200
-                                    ${showCategories
-                                        ? "rotate-180"
-                                        : ""
-                                    }
+                                    ${showCategories ? "rotate-180" : ""}
                                 `}
-                            />
-                        </button>
+              />
+            </button>
 
-
-                        {/* =========================
+            {/* =========================
                             Dropdown
                         ========================= */}
-                        {showCategories && (
-                            <div
-                                className="
+            {showCategories && (
+              <div
+                className="
                                     absolute
                                     top-full
                                     left-0
@@ -99,28 +89,21 @@ const BottomHeader = () => {
                                     overflow-hidden
                                     text-gray-800
                                 "
-                            >
+              >
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Categories
+                  </p>
+                </div>
 
-                                <div className="px-4 py-3 border-b border-gray-100">
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                                        Categories
-                                    </p>
-                                </div>
-
-                                <div className="max-h-80 overflow-y-auto py-2">
-
-                                    {categories.length > 0 ? (
-                                        categories.map(
-                                            (category) => (
-                                                <Link
-                                                    key={category.slug}
-                                                    to={`/category/${category.slug}`}
-                                                    onClick={() =>
-                                                        setShowCategories(
-                                                            false
-                                                        )
-                                                    }
-                                                    className="
+                <div className="max-h-80 overflow-y-auto py-2">
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <Link
+                        key={category.slug}
+                        to={`/category/${category.slug}`}
+                        onClick={() => setShowCategories(false)}
+                        className="
                                                         flex
                                                         items-center
                                                         justify-between
@@ -132,39 +115,29 @@ const BottomHeader = () => {
                                                         hover:text-gray-900
                                                         transition-colors
                                                     "
-                                                >
-                                                    <span>
-                                                        {category.name}
-                                                    </span>
+                      >
+                        <span>{category.name}</span>
 
-                                                    <span className="text-gray-300">
-                                                        →
-                                                    </span>
-                                                </Link>
-                                            )
-                                        )
-                                    ) : (
-                                        <div className="px-4 py-5 text-sm text-gray-400">
-                                            Loading categories...
-                                        </div>
-                                    )}
-
-                                </div>
-
-                            </div>
-                        )}
-
+                        <span className="text-gray-300">→</span>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="px-4 py-5 text-sm text-gray-400">
+                      Loading categories...
                     </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
-
-                    {/* =========================
+          {/* =========================
                         Navigation Links
                     ========================= */}
-                    <div className="hidden sm:flex items-center gap-1">
-
-                        <Link
-                            to="/"
-                            className="
+          <div className="hidden sm:flex items-center gap-1">
+            <Link
+              to="/"
+              className="
                                 px-4
                                 py-2
                                 rounded-lg
@@ -175,13 +148,13 @@ const BottomHeader = () => {
                                 hover:text-white
                                 transition
                             "
-                        >
-                            Home
-                        </Link>
+            >
+              Home
+            </Link>
 
-                        <Link
-                            to="/products"
-                            className="
+            <Link
+              to="/products"
+              className="
                                 px-4
                                 py-2
                                 rounded-lg
@@ -192,13 +165,13 @@ const BottomHeader = () => {
                                 hover:text-white
                                 transition
                             "
-                        >
-                            Products
-                        </Link>
+            >
+              Products
+            </Link>
 
-                        <Link
-                            to="/about"
-                            className="
+            <Link
+              to="/about"
+              className="
                                 px-4
                                 py-2
                                 rounded-lg
@@ -209,13 +182,13 @@ const BottomHeader = () => {
                                 hover:text-white
                                 transition
                             "
-                        >
-                            About
-                        </Link>
+            >
+              About
+            </Link>
 
-                        <Link
-                            to="/contact"
-                            className="
+            <Link
+              to="/contact"
+              className="
                                 px-4
                                 py-2
                                 rounded-lg
@@ -226,17 +199,14 @@ const BottomHeader = () => {
                                 hover:text-white
                                 transition
                             "
-                        >
-                            Contact
-                        </Link>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </nav>
-    );
+            >
+              Contact
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 };
 
 export default BottomHeader;
