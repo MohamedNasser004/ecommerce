@@ -96,11 +96,10 @@ const Products = ({ products, loading }) => {
                                             </div>
                                         ) : (
                                             <div
-                                                className={`grid gap-2 ${
-                                                    variants.length === 2
+                                                className={`grid gap-2 ${variants.length === 2
                                                         ? "grid-cols-2"
                                                         : "grid-cols-3"
-                                                }`}
+                                                    }`}
                                             >
                                                 {variants.map((variant) => (
                                                     <div
