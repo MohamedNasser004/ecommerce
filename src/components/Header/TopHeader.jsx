@@ -14,11 +14,8 @@ const TopHeader = () => {
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
                 <div className="h-20 flex items-center justify-between gap-6">
-
                     {/* Logo */}
                     <Link
                         to="/"
@@ -30,8 +27,6 @@ const TopHeader = () => {
                             className="w-32 sm:w-36 h-auto object-contain"
                         />
                     </Link>
-
-
                     {/* Search */}
                     <form
                         action=""
@@ -62,7 +57,6 @@ const TopHeader = () => {
                                     focus:ring-gray-100
                                 "
                             />
-
                             <button
                                 type="submit"
                                 className="
